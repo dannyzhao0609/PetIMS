@@ -66,6 +66,16 @@ const routes = [
         path: 'tracking',
         name: 'Tracking',
         component: () => import('@/views/tracking/Index.vue')
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/profile/Index.vue')
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: () => import('@/views/settings/Index.vue')
       }
     ]
   }

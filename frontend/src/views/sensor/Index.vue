@@ -1,17 +1,14 @@
 <template>
-  <div class="sensor-container">
-    <el-card class="box-card">
-      <template #header>
-        <div class="card-header">
-          <span>传感器管理</span>
-          <el-button type="primary" @click="handleAddSensor">
-            <el-icon><Plus /></el-icon>
-            添加传感器
-          </el-button>
-        </div>
-      </template>
-      
-      <el-tabs v-model="activeTab">
+  <div class="page-container">
+    <div class="page-header glass-card">
+      <h2>传感器管理</h2>
+      <el-button type="primary" class="glow-button" @click="handleAddSensor">
+        <el-icon><Plus /></el-icon>
+        添加传感器
+      </el-button>
+    </div>
+    <div class="page-content">
+      <el-tabs v-model="activeTab" class="glass-card">
         <el-tab-pane label="传感器列表" name="sensors">
           <el-table :data="sensors" style="width: 100%" stripe>
             <el-table-column prop="id" label="ID" width="80" />
@@ -66,12 +63,13 @@
           </el-table>
         </el-tab-pane>
       </el-tabs>
-    </el-card>
+    </div>
 
     <el-dialog
       v-model="sensorDialogVisible"
       :title="isEditSensor ? '编辑传感器' : '添加传感器'"
       width="500px"
+      class="sensor-dialog"
     >
       <el-form :model="sensorForm" :rules="sensorRules" ref="sensorFormRef" label-width="100px">
         <el-form-item label="传感器编码" prop="sensorCode">
@@ -106,6 +104,7 @@
       v-model="bindingDialogVisible"
       title="绑定宠物"
       width="500px"
+      class="binding-dialog"
     >
       <el-form :model="bindingForm" :rules="bindingRules" ref="bindingFormRef" label-width="100px">
         <el-form-item label="选择宠物" prop="petId">
@@ -138,7 +137,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Link } from '@element-plus/icons-vue'
 import { getSensors, createSensor, updateSensor, deleteSensor, getBindings, createBinding, deleteBinding } from '@/api/sensor'
@@ -154,7 +153,7 @@ const isEditSensor = ref(false)
 const sensorFormRef = ref(null)
 const bindingFormRef = ref(null)
 
-const sensorForm = ref({
+const sensorForm = reactive({
   id: null,
   sensorCode: '',
   sensorName: '',
@@ -163,7 +162,7 @@ const sensorForm = ref({
   batteryLevel: 100
 })
 
-const bindingForm = ref({
+const bindingForm = reactive({
   petId: null,
   sensorId: null
 })
@@ -196,7 +195,7 @@ const loadSensors = async () => {
     const res = await getSensors()
     sensors.value = res.data || []
   } catch (error) {
-    ElMessage.error('加载传感器列表失败')
+    console.error('加载传感器列表失败:', error)
   }
 }
 
@@ -205,7 +204,7 @@ const loadBindings = async () => {
     const res = await getBindings()
     bindings.value = res.data || []
   } catch (error) {
-    ElMessage.error('加载绑定列表失败')
+    console.error('加载绑定列表失败:', error)
   }
 }
 
@@ -215,26 +214,26 @@ const loadPets = async () => {
     const res = await getPetsByUserId(userInfo.id)
     pets.value = res.data || []
   } catch (error) {
-    ElMessage.error('加载宠物列表失败')
+    console.error('加载宠物列表失败:', error)
   }
 }
 
 const handleAddSensor = () => {
   isEditSensor.value = false
-  sensorForm.value = {
+  Object.assign(sensorForm, {
     id: null,
     sensorCode: '',
     sensorName: '',
     sensorType: 'GPS',
     status: 'ACTIVE',
     batteryLevel: 100
-  }
+  })
   sensorDialogVisible.value = true
 }
 
 const handleEditSensor = (row) => {
   isEditSensor.value = true
-  sensorForm.value = { ...row }
+  Object.assign(sensorForm, row)
   sensorDialogVisible.value = true
 }
 
@@ -242,17 +241,17 @@ const handleSaveSensor = async () => {
   try {
     await sensorFormRef.value.validate()
     if (isEditSensor.value) {
-      await updateSensor(sensorForm.value)
+      await updateSensor(sensorForm)
       ElMessage.success('更新成功')
     } else {
-      await createSensor(sensorForm.value)
+      await createSensor(sensorForm)
       ElMessage.success('添加成功')
     }
     sensorDialogVisible.value = false
     loadSensors()
   } catch (error) {
     if (error !== false) {
-      ElMessage.error('保存失败')
+      console.error('保存失败:', error)
     }
   }
 }
@@ -269,29 +268,29 @@ const handleDeleteSensor = async (row) => {
     loadSensors()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      console.error('删除失败:', error)
     }
   }
 }
 
 const handleAddBinding = () => {
-  bindingForm.value = {
+  Object.assign(bindingForm, {
     petId: null,
     sensorId: null
-  }
+  })
   bindingDialogVisible.value = true
 }
 
 const handleSaveBinding = async () => {
   try {
     await bindingFormRef.value.validate()
-    await createBinding(bindingForm.value)
+    await createBinding(bindingForm)
     ElMessage.success('绑定成功')
     bindingDialogVisible.value = false
     loadBindings()
   } catch (error) {
     if (error !== false) {
-      ElMessage.error('绑定失败')
+      console.error('绑定失败:', error)
     }
   }
 }
@@ -308,7 +307,7 @@ const handleDeleteBinding = async (row) => {
     loadBindings()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('解绑失败')
+      console.error('解绑失败:', error)
     }
   }
 }
@@ -321,15 +320,58 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.sensor-container {
-  .card-header {
+.page-container {
+  .page-header {
+    padding: 20px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 20px;
+
+    h2 {
+      margin: 0;
+      color: #f1f5f9;
+    }
   }
-  
-  .binding-header {
-    margin-bottom: 16px;
+
+  .page-content {
+    .binding-header {
+      margin-bottom: 16px;
+    }
+  }
+}
+
+:deep(.sensor-dialog),
+:deep(.binding-dialog) {
+  .el-dialog {
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    .el-dialog__header {
+      .el-dialog__title {
+        color: #f1f5f9;
+      }
+    }
+
+    .el-form-item__label {
+      color: #94a3b8;
+    }
+
+    .el-input__wrapper,
+    .el-select__wrapper {
+      background: rgba(15, 23, 42, 0.8);
+      border-color: rgba(255, 255, 255, 0.1);
+
+      &:hover {
+        border-color: rgba(0, 212, 255, 0.5);
+      }
+
+      .el-input__inner,
+      .el-select__selected-item {
+        color: #f1f5f9;
+      }
+    }
   }
 }
 </style>

@@ -190,9 +190,9 @@ const handleCommand = async (command) => {
     } catch {
     }
   } else if (command === 'profile') {
-    ElMessage.info('个人中心功能开发中...')
+    router.push('/profile')
   } else if (command === 'settings') {
-    ElMessage.info('系统设置功能开发中...')
+    router.push('/settings')
   }
 }
 </script>

@@ -6,7 +6,7 @@
         <div class="logo">
           <img src="@/assets/images/设计宠物管理网站 logo.png" alt="PetIMS Logo" style="width: 118px; height: auto; border-radius: 50%; box-shadow: 0 0 20px rgba(15, 23, 42, 0.5);" />
         </div>
-        <p class="title neon-text" style="font-size:25px">智能宠物管理系统</p>
+        <p class="title neon-text" style="font-size:20px">智能宠物管理系统</p>
       </div>
 
       <el-form :model="loginForm" :rules="rules" ref="loginFormRef" class="login-form">

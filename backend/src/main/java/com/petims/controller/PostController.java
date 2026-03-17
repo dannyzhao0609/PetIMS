@@ -1,6 +1,7 @@
 package com.petims.controller;
 
 import com.petims.common.result.Result;
+import com.petims.dto.PostDTO;
 import com.petims.entity.Post;
 import com.petims.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,10 +21,16 @@ public class PostController {
         this.postService = postService;
     }
 
+    @Operation(summary = "获取所有帖子列表")
+    @GetMapping
+    public Result<List<PostDTO>> listAll() {
+        return Result.success(postService.listAllDTO());
+    }
+
     @Operation(summary = "获取最近的帖子列表")
     @GetMapping("/recent")
-    public Result<List<Post>> listRecent() {
-        return Result.success(postService.listRecent());
+    public Result<List<PostDTO>> listRecent() {
+        return Result.success(postService.listRecentDTO());
     }
 
     @Operation(summary = "获取用户的帖子列表")
@@ -41,6 +48,15 @@ public class PostController {
     @Operation(summary = "新增帖子")
     @PostMapping
     public Result<Void> save(@RequestBody Post post) {
+        if (post.getUserId() == null) {
+            post.setUserId(1L);
+        }
+        if (post.getLikes() == null) {
+            post.setLikes(0);
+        }
+        if (post.getComments() == null) {
+            post.setComments(0);
+        }
         postService.save(post);
         return Result.success();
     }
