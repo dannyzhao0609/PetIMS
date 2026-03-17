@@ -188,7 +188,7 @@ const loadAMap = () => {
     
     const script = document.createElement('script')
     script.type = 'text/javascript'
-    script.src = 'https://webapi.amap.com/maps?v=2.0&key=8676255a2b98e0a4e5a4c3b2a1d0e9f8'
+    script.src = 'https://webapi.amap.com/maps?v=2.0&key=c1778fe007bcf29174b1d9a68e8204c9'
     
     script.onload = () => {
       if (window.AMap) {
