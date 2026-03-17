@@ -24,13 +24,17 @@
       </div>
       
       <div v-else class="tracking-content">
-        <div class="map-container glass-card" v-if="mapLoaded">
-          <div id="amap-container" class="amap-container"></div>
-        </div>
-        
-        <div class="map-container glass-card" v-else>
-          <div class="map-placeholder">
-            <el-icon :size="48"><Position /></el-icon>
+        <div class="map-container glass-card">
+          <div v-if="mapLoadError" class="map-error">
+            <el-icon :size="48"><Warning /></el-icon>
+            <p>地图服务暂时不可用</p>
+            <p class="error-detail">请检查网络连接或稍后重试</p>
+          </div>
+          <div v-else-if="mapLoaded" class="map-wrapper">
+            <div id="amap-container" class="amap-container"></div>
+          </div>
+          <div v-else class="map-placeholder">
+            <el-icon :size="48" class="loading-icon"><Loading /></el-icon>
             <p>地图加载中...</p>
           </div>
         </div>
@@ -71,7 +75,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Refresh, Position } from '@element-plus/icons-vue'
+import { Refresh, Warning, Loading } from '@element-plus/icons-vue'
 import { getPetsByUserId } from '@/api/pet'
 import { getBindings } from '@/api/sensor'
 import { getLocationTracksByPetId, getLatestLocationByPetId } from '@/api/location'
@@ -82,6 +86,7 @@ const bindings = ref([])
 const locationTracks = ref([])
 const latestLocation = ref(null)
 const mapLoaded = ref(false)
+const mapLoadError = ref(false)
 let map = null
 let marker = null
 let polyline = null
@@ -148,11 +153,7 @@ const initMap = async () => {
   mapInitAttempted.value = true
   
   try {
-    const AMap = await window.AMapLoader.load({
-      key: 'a2e9a8bcb1958f2a0e9f6e6d7a8b9c0d',
-      version: '2.0',
-      plugins: ['AMap.Marker', 'AMap.Polyline', 'AMap.ToolBar', 'AMap.Scale']
-    })
+    const AMap = await loadAMap()
     
     map = new AMap.Map('amap-container', {
       resizeEnable: true,
@@ -164,6 +165,7 @@ const initMap = async () => {
     map.addControl(new AMap.Scale())
     
     mapLoaded.value = true
+    mapLoadError.value = false
     
     nextTick(() => {
       if (latestLocation.value) {
@@ -172,7 +174,36 @@ const initMap = async () => {
     })
   } catch (error) {
     console.error('地图初始化失败:', error)
+    mapLoadError.value = true
+    mapLoaded.value = false
   }
+}
+
+const loadAMap = () => {
+  return new Promise((resolve, reject) => {
+    if (window.AMap) {
+      resolve(window.AMap)
+      return
+    }
+    
+    const script = document.createElement('script')
+    script.type = 'text/javascript'
+    script.src = 'https://webapi.amap.com/maps?v=2.0&key=8676255a2b98e0a4e5a4c3b2a1d0e9f8'
+    
+    script.onload = () => {
+      if (window.AMap) {
+        resolve(window.AMap)
+      } else {
+        reject(new Error('AMap not found'))
+      }
+    }
+    
+    script.onerror = () => {
+      reject(new Error('Failed to load AMap script'))
+    }
+    
+    document.head.appendChild(script)
+  })
 }
 
 const updateMap = () => {
@@ -222,37 +253,13 @@ const refreshLocation = () => {
   ElMessage.success('位置已刷新')
 }
 
-const loadAMapSDK = () => {
-  if (window.AMapLoader) {
-    return Promise.resolve()
-  }
-  
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.src = 'https://webapi.amap.com/loader.js'
-    script.onload = () => {
-      resolve()
-    }
-    script.onerror = () => {
-      reject(new Error('加载高德地图SDK失败'))
-    }
-    document.head.appendChild(script)
-  })
-}
-
 onMounted(async () => {
   loadPets()
   loadBindings()
   
-  try {
-    await loadAMapSDK()
-    nextTick(() => {
-      initMap()
-    })
-  } catch (error) {
-    console.error('加载地图SDK失败:', error)
-  }
+  nextTick(() => {
+    initMap()
+  })
 })
 
 onUnmounted(() => {
@@ -298,13 +305,18 @@ onUnmounted(() => {
       .map-container {
         padding: 20px;
         
+        .map-wrapper {
+          width: 100%;
+        }
+        
         .amap-container {
           width: 100%;
           height: 400px;
           border-radius: 8px;
         }
         
-        .map-placeholder {
+        .map-placeholder,
+        .map-error {
           width: 100%;
           height: 400px;
           display: flex;
@@ -313,6 +325,15 @@ onUnmounted(() => {
           justify-content: center;
           color: #94a3b8;
           gap: 16px;
+          
+          .loading-icon {
+            animation: spin 1s linear infinite;
+          }
+          
+          .error-detail {
+            font-size: 12px;
+            opacity: 0.8;
+          }
         }
       }
       
@@ -336,6 +357,15 @@ onUnmounted(() => {
         }
       }
     }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>
