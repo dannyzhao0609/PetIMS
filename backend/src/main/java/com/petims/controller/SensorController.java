@@ -41,6 +41,9 @@ public class SensorController {
     @Operation(summary = "新增传感器")
     @PostMapping
     public Result<Void> save(@RequestBody Sensor sensor) {
+        if (sensor.getUserId() == null) {
+            sensor.setUserId(1L);
+        }
         sensorService.save(sensor);
         return Result.success();
     }

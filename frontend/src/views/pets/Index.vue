@@ -11,7 +11,7 @@
         <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="pet in petStore.petList" :key="pet.id">
           <div class="pet-card glass-card" @click="handleSelect(pet)">
             <div class="pet-avatar">
-              <el-avatar :size="80" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6)">
+              <el-avatar :size="80" :src="pet.avatar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6)">
                 {{ pet.name?.charAt(0)?.toUpperCase() || 'P' }}
               </el-avatar>
             </div>
@@ -46,6 +46,19 @@
       class="pet-dialog"
     >
       <el-form :model="form" :rules="rules" ref="formRef" label-width="80px">
+        <el-form-item label="宠物头像">
+          <el-upload
+            class="avatar-uploader"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+            action="#"
+          >
+            <el-avatar :size="100" :src="form.avatar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6)">
+              <el-icon class="avatar-uploader-icon"><Plus /></el-icon>
+            </el-avatar>
+          </el-upload>
+        </el-form-item>
         <el-form-item label="宠物名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入宠物名称" />
         </el-form-item>
@@ -109,7 +122,8 @@ const form = reactive({
   birthday: null,
   weight: null,
   height: null,
-  remarks: ''
+  remarks: '',
+  avatar: ''
 })
 
 const rules = {
@@ -133,7 +147,8 @@ const handleAdd = () => {
     birthday: null,
     weight: null,
     height: null,
-    remarks: ''
+    remarks: '',
+    avatar: ''
   })
   dialogVisible.value = true
 }
@@ -160,6 +175,27 @@ const handleDelete = async (pet) => {
     ElMessage.success('删除成功')
   } catch {
   }
+}
+
+const handleAvatarSuccess = (response, file) => {
+  form.avatar = URL.createObjectURL(file.raw)
+}
+
+const beforeAvatarUpload = (file) => {
+  const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png'
+  const isLt2M = file.size / 1024 / 1024 < 2
+
+  if (!isJPG) {
+    ElMessage.error('头像图片只能是 JPG/PNG 格式!')
+    return false
+  }
+  if (!isLt2M) {
+    ElMessage.error('头像图片大小不能超过 2MB!')
+    return false
+  }
+  
+  form.avatar = URL.createObjectURL(file)
+  return false
 }
 
 const handleSubmit = async () => {
@@ -256,6 +292,18 @@ const handleSubmit = async () => {
     transition: opacity 0.3s ease;
     display: flex;
     gap: 4px;
+  }
+
+  .avatar-uploader {
+    :deep(.el-upload) {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .avatar-uploader-icon {
+      font-size: 28px;
+      color: #8c939d;
+    }
   }
 }
 
