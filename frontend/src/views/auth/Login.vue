@@ -60,6 +60,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Promotion } from '@element-plus/icons-vue'
+import { login } from '@/api/user'
 
 const router = useRouter()
 const loginFormRef = ref(null)
@@ -75,8 +76,7 @@ const rules = {
     { required: true, message: '请输入用户名', trigger: 'blur' }
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    { required: true, message: '请输入密码', trigger: 'blur' }
   ]
 }
 
@@ -85,12 +85,14 @@ const handleLogin = async () => {
     if (valid) {
       loading.value = true
       try {
-        localStorage.setItem('token', 'demo-token')
-        localStorage.setItem('userInfo', JSON.stringify({ username: loginForm.username }))
+        const res = await login(loginForm)
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('userInfo', JSON.stringify(res.data.userInfo))
+        localStorage.setItem('tenantId', res.data.userInfo.tenantId || '1')
         ElMessage.success('登录成功！')
         router.push('/dashboard')
       } catch (error) {
-        ElMessage.error('登录失败，请重试')
+        console.error('登录失败:', error)
       } finally {
         loading.value = false
       }

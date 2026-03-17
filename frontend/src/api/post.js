@@ -1,27 +1,20 @@
 import request from './request'
 
-export const getRecentPosts = () => {
+export function getPosts() {
   return request({
-    url: '/posts/recent',
+    url: '/posts',
     method: 'get'
   })
 }
 
-export const getPostList = (userId) => {
-  return request({
-    url: `/posts/user/${userId}`,
-    method: 'get'
-  })
-}
-
-export const getPostById = (id) => {
+export function getPostById(id) {
   return request({
     url: `/posts/${id}`,
     method: 'get'
   })
 }
 
-export const savePost = (data) => {
+export function createPost(data) {
   return request({
     url: '/posts',
     method: 'post',
@@ -29,7 +22,7 @@ export const savePost = (data) => {
   })
 }
 
-export const updatePost = (data) => {
+export function updatePost(data) {
   return request({
     url: '/posts',
     method: 'put',
@@ -37,7 +30,7 @@ export const updatePost = (data) => {
   })
 }
 
-export const deletePost = (id) => {
+export function deletePost(id) {
   return request({
     url: `/posts/${id}`,
     method: 'delete'

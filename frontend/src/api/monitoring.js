@@ -1,20 +1,20 @@
 import request from './request'
 
-export const getMonitoringList = (petId) => {
+export function getMonitoringRecordsByPetId(petId) {
   return request({
     url: `/monitoring-records/pet/${petId}`,
     method: 'get'
   })
 }
 
-export const getMonitoringById = (id) => {
+export function getMonitoringRecordById(id) {
   return request({
     url: `/monitoring-records/${id}`,
     method: 'get'
   })
 }
 
-export const saveMonitoring = (data) => {
+export function createMonitoringRecord(data) {
   return request({
     url: '/monitoring-records',
     method: 'post',
@@ -22,7 +22,7 @@ export const saveMonitoring = (data) => {
   })
 }
 
-export const updateMonitoring = (data) => {
+export function updateMonitoringRecord(data) {
   return request({
     url: '/monitoring-records',
     method: 'put',
@@ -30,7 +30,7 @@ export const updateMonitoring = (data) => {
   })
 }
 
-export const deleteMonitoring = (id) => {
+export function deleteMonitoringRecord(id) {
   return request({
     url: `/monitoring-records/${id}`,
     method: 'delete'

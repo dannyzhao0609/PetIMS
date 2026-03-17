@@ -1,20 +1,20 @@
 import request from './request'
 
-export const getHealthList = (petId) => {
+export function getHealthRecordsByPetId(petId) {
   return request({
     url: `/health-records/pet/${petId}`,
     method: 'get'
   })
 }
 
-export const getHealthById = (id) => {
+export function getHealthRecordById(id) {
   return request({
     url: `/health-records/${id}`,
     method: 'get'
   })
 }
 
-export const saveHealth = (data) => {
+export function createHealthRecord(data) {
   return request({
     url: '/health-records',
     method: 'post',
@@ -22,7 +22,7 @@ export const saveHealth = (data) => {
   })
 }
 
-export const updateHealth = (data) => {
+export function updateHealthRecord(data) {
   return request({
     url: '/health-records',
     method: 'put',
@@ -30,7 +30,7 @@ export const updateHealth = (data) => {
   })
 }
 
-export const deleteHealth = (id) => {
+export function deleteHealthRecord(id) {
   return request({
     url: `/health-records/${id}`,
     method: 'delete'

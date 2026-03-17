@@ -93,7 +93,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 import { usePetStore } from '@/store/pet'
-import { savePet, updatePet, deletePet } from '@/api/pet'
+import { createPet, updatePet, deletePet } from '@/api/pet'
 
 const petStore = usePetStore()
 const dialogVisible = ref(false)
@@ -173,7 +173,7 @@ const handleSubmit = async () => {
       petStore.updatePetInList(form)
       ElMessage.success('更新成功')
     } else {
-      await savePet(form)
+      await createPet(form)
       ElMessage.success('添加成功')
       petStore.fetchPetList(userInfo.id || 1)
     }

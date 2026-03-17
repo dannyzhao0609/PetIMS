@@ -1,20 +1,20 @@
 import request from './request'
 
-export const getHygieneList = (petId) => {
+export function getHygieneRecordsByPetId(petId) {
   return request({
     url: `/hygiene-records/pet/${petId}`,
     method: 'get'
   })
 }
 
-export const getHygieneById = (id) => {
+export function getHygieneRecordById(id) {
   return request({
     url: `/hygiene-records/${id}`,
     method: 'get'
   })
 }
 
-export const saveHygiene = (data) => {
+export function createHygieneRecord(data) {
   return request({
     url: '/hygiene-records',
     method: 'post',
@@ -22,7 +22,7 @@ export const saveHygiene = (data) => {
   })
 }
 
-export const updateHygiene = (data) => {
+export function updateHygieneRecord(data) {
   return request({
     url: '/hygiene-records',
     method: 'put',
@@ -30,7 +30,7 @@ export const updateHygiene = (data) => {
   })
 }
 
-export const deleteHygiene = (id) => {
+export function deleteHygieneRecord(id) {
   return request({
     url: `/hygiene-records/${id}`,
     method: 'delete'

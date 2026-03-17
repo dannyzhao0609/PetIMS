@@ -1,20 +1,20 @@
 import request from './request'
 
-export const getPetList = (userId) => {
+export function getPetsByUserId(userId) {
   return request({
     url: `/pets/user/${userId}`,
     method: 'get'
   })
 }
 
-export const getPetById = (id) => {
+export function getPetById(id) {
   return request({
     url: `/pets/${id}`,
     method: 'get'
   })
 }
 
-export const savePet = (data) => {
+export function createPet(data) {
   return request({
     url: '/pets',
     method: 'post',
@@ -22,7 +22,7 @@ export const savePet = (data) => {
   })
 }
 
-export const updatePet = (data) => {
+export function updatePet(data) {
   return request({
     url: '/pets',
     method: 'put',
@@ -30,7 +30,7 @@ export const updatePet = (data) => {
   })
 }
 
-export const deletePet = (id) => {
+export function deletePet(id) {
   return request({
     url: `/pets/${id}`,
     method: 'delete'

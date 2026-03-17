@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { getPetList } from '@/api/pet'
+import { getPetsByUserId } from '@/api/pet'
 
 export const usePetStore = defineStore('pet', () => {
   const petList = ref([])
@@ -8,7 +8,7 @@ export const usePetStore = defineStore('pet', () => {
 
   const fetchPetList = async (userId) => {
     try {
-      const res = await getPetList(userId)
+      const res = await getPetsByUserId(userId)
       petList.value = res.data || []
       if (petList.value.length > 0 && !selectedPet.value) {
         selectedPet.value = petList.value[0]
