@@ -170,8 +170,81 @@ INSERT INTO monitoring_records (tenant_id, pet_id, record_type, value, unit, rec
 (1, 2, '活动量', '1800', '步', '2024-12-01 23:59:59'),
 (1, 2, '睡眠', '16', '小时', '2024-12-01 23:59:59');
 
+-- 传感器表
+CREATE TABLE IF NOT EXISTS sensors (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '传感器ID',
+    tenant_id BIGINT NOT NULL DEFAULT 1 COMMENT '租户ID',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    sensor_code VARCHAR(50) NOT NULL COMMENT '传感器编号',
+    sensor_name VARCHAR(100) COMMENT '传感器名称',
+    sensor_type VARCHAR(50) NOT NULL COMMENT '传感器类型(GPS/蓝牙)',
+    status VARCHAR(20) DEFAULT 'active' COMMENT '状态(active/inactive)',
+    battery_level INT COMMENT '电量百分比',
+    last_active_time DATETIME COMMENT '最后活跃时间',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted TINYINT DEFAULT 0 COMMENT '删除标记 0-未删除 1-已删除',
+    UNIQUE KEY uk_sensor_code_tenant (sensor_code, tenant_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_tenant_id (tenant_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='传感器表';
+
+-- 宠物-传感器绑定表
+CREATE TABLE IF NOT EXISTS pet_sensor_bindings (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '绑定ID',
+    tenant_id BIGINT NOT NULL DEFAULT 1 COMMENT '租户ID',
+    pet_id BIGINT NOT NULL COMMENT '宠物ID',
+    sensor_id BIGINT NOT NULL COMMENT '传感器ID',
+    bind_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '绑定时间',
+    unbind_time DATETIME COMMENT '解绑时间',
+    status VARCHAR(20) DEFAULT 'bound' COMMENT '状态(bound/unbound)',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted TINYINT DEFAULT 0 COMMENT '删除标记 0-未删除 1-已删除',
+    UNIQUE KEY uk_pet_sensor_tenant (pet_id, sensor_id, tenant_id),
+    INDEX idx_pet_id (pet_id),
+    INDEX idx_sensor_id (sensor_id),
+    INDEX idx_tenant_id (tenant_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='宠物-传感器绑定表';
+
+-- 位置跟踪表
+CREATE TABLE IF NOT EXISTS location_tracks (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '位置ID',
+    tenant_id BIGINT NOT NULL DEFAULT 1 COMMENT '租户ID',
+    pet_id BIGINT NOT NULL COMMENT '宠物ID',
+    sensor_id BIGINT COMMENT '传感器ID',
+    latitude DECIMAL(10, 7) NOT NULL COMMENT '纬度',
+    longitude DECIMAL(10, 7) NOT NULL COMMENT '经度',
+    address VARCHAR(255) COMMENT '地址描述',
+    track_time DATETIME NOT NULL COMMENT '跟踪时间',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    INDEX idx_pet_id (pet_id),
+    INDEX idx_sensor_id (sensor_id),
+    INDEX idx_tenant_id (tenant_id),
+    INDEX idx_track_time (track_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='位置跟踪表';
+
 -- 插入帖子数据
 INSERT INTO posts (tenant_id, user_id, pet_id, title, content, likes, comments) VALUES
 (1, 1, 1, '小白的幸福生活', '今天带小白去公园玩耍，开心极了！', 15, 3),
 (1, 1, 2, '喵喵的慵懒日常', '喵喵今天又在阳光下睡了一下午~', 28, 8),
 (1, 2, 3, '旺财的第一次旅行', '带旺财去郊外露营，他玩得超开心！', 42, 12);
+
+-- 插入传感器数据
+INSERT INTO sensors (tenant_id, user_id, sensor_code, sensor_name, sensor_type, status, battery_level, last_active_time) VALUES
+(1, 1, 'GPS001', '小白的定位器', 'GPS', 'active', 85, NOW()),
+(1, 1, 'GPS002', '喵喵的定位器', 'GPS', 'active', 92, NOW()),
+(1, 2, 'GPS003', '旺财的定位器', 'GPS', 'inactive', 45, '2024-11-15 10:30:00');
+
+-- 插入传感器绑定数据
+INSERT INTO pet_sensor_bindings (tenant_id, pet_id, sensor_id, status) VALUES
+(1, 1, 1, 'bound'),
+(1, 2, 2, 'bound');
+
+-- 插入位置跟踪数据
+INSERT INTO location_tracks (tenant_id, pet_id, sensor_id, latitude, longitude, address, track_time) VALUES
+(1, 1, 1, 39.9042000, 116.4074000, '北京市朝阳区天安门附近', DATE_SUB(NOW(), INTERVAL 10 MINUTE)),
+(1, 1, 1, 39.9045000, 116.4078000, '北京市朝阳区王府井', DATE_SUB(NOW(), INTERVAL 5 MINUTE)),
+(1, 1, 1, 39.9048000, 116.4082000, '北京市朝阳区东方广场', NOW()),
+(1, 2, 2, 31.2304000, 121.4737000, '上海市黄浦区外滩', DATE_SUB(NOW(), INTERVAL 15 MINUTE)),
+(1, 2, 2, 31.2307000, 121.4740000, '上海市黄浦区南京路', NOW());

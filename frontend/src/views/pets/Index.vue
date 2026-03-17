@@ -219,6 +219,7 @@ const handleSubmit = async () => {
         opacity: 1;
       }
     }
+  }
 
   .pet-avatar {
     margin-bottom: 16px;

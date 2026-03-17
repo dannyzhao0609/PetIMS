@@ -82,7 +82,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Edit, Delete, Food } from '@element-plus/icons-vue'
 import { usePetStore } from '@/store/pet'
-import { getFeedingList, saveFeeding, updateFeeding, deleteFeeding } from '@/api/feeding'
+import { getFeedingRecordsByPetId, createFeedingRecord, updateFeedingRecord, deleteFeedingRecord } from '@/api/feeding'
 
 const petStore = usePetStore()
 const feedingList = ref([])
@@ -125,7 +125,7 @@ const handlePetChange = () => {
 
 const fetchFeedingList = async () => {
   try {
-    const res = await getFeedingList(selectedPetId.value)
+    const res = await getFeedingRecordsByPetId(selectedPetId.value)
     feedingList.value = res.data || []
   } catch (error) {
     console.error('获取喂食记录失败:', error)
@@ -159,7 +159,7 @@ const handleDelete = async (item) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    await deleteFeeding(item.id)
+    await deleteFeedingRecord(item.id)
     feedingList.value = feedingList.value.filter(f => f.id !== item.id)
     ElMessage.success('删除成功')
   } catch {
@@ -171,10 +171,10 @@ const handleSubmit = async () => {
   try {
     form.petId = selectedPetId.value
     if (isEdit.value) {
-      await updateFeeding(form)
+      await updateFeedingRecord(form)
       ElMessage.success('更新成功')
     } else {
-      await saveFeeding(form)
+      await createFeedingRecord(form)
       ElMessage.success('添加成功')
     }
     fetchFeedingList()

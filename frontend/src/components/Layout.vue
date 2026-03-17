@@ -4,7 +4,7 @@
       <el-aside :width="isCollapse ? '64px' : '240px'" class="sidebar">
         <div class="logo-section">
           <div class="logo">
-            <img src="@/assets/images/设计宠物管理网站 logo.png" alt="PetIMS Logo" style="width: 48px; height: auto;" />
+            <img src="@/assets/images/设计宠物管理网站 logo.png" alt="PetIMS Logo" style="width: 46px; height: auto; border-radius: 50%; box-shadow: 0 0 10px rgba(15, 23, 42, 0.5);" />
             <span v-show="!isCollapse" class="logo-text">PetIMS</span>
           </div>
         </div>
@@ -54,6 +54,14 @@
           <el-menu-item index="/share">
             <el-icon><Share /></el-icon>
             <template #title>日常分享</template>
+          </el-menu-item>
+          <el-menu-item index="/sensor">
+            <el-icon><Position /></el-icon>
+            <template #title>传感器管理</template>
+          </el-menu-item>
+          <el-menu-item index="/tracking">
+            <el-icon><Location /></el-icon>
+            <template #title>位置跟踪</template>
           </el-menu-item>
         </el-menu>
       </el-aside>
@@ -127,7 +135,9 @@ import {
   User,
   Setting,
   SwitchButton,
-  ArrowDown
+  ArrowDown,
+  Position,
+  Location
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -147,7 +157,9 @@ const currentPage = computed(() => {
     '/monitoring': '日常监控',
     '/growth': '成长分析',
     '/community': '宠友互动',
-    '/share': '日常分享'
+    '/share': '日常分享',
+    '/sensor': '传感器管理',
+    '/tracking': '位置跟踪'
   }
   return pageMap[route.path] || '页面'
 })

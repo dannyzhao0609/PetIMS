@@ -1,13 +1,9 @@
 package com.petims.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
 @TableName("hygiene_records")
 public class HygieneRecord extends BaseEntity {
 
@@ -20,4 +16,44 @@ public class HygieneRecord extends BaseEntity {
     private String description;
 
     private String attachments;
+
+    public Long getPetId() {
+        return petId;
+    }
+
+    public void setPetId(Long petId) {
+        this.petId = petId;
+    }
+
+    public String getRecordType() {
+        return recordType;
+    }
+
+    public void setRecordType(String recordType) {
+        this.recordType = recordType;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(String attachments) {
+        this.attachments = attachments;
+    }
 }

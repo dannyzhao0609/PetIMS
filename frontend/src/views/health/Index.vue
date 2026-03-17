@@ -77,7 +77,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Edit, Delete, FirstAidKit } from '@element-plus/icons-vue'
 import { usePetStore } from '@/store/pet'
-import { getHealthList, saveHealth, updateHealth, deleteHealth } from '@/api/health'
+import { getHealthRecordsByPetId, createHealthRecord, updateHealthRecord, deleteHealthRecord } from '@/api/health'
 
 const petStore = usePetStore()
 const healthList = ref([])
@@ -128,7 +128,7 @@ const handlePetChange = () => {
 
 const fetchHealthList = async () => {
   try {
-    const res = await getHealthList(selectedPetId.value)
+    const res = await getHealthRecordsByPetId(selectedPetId.value)
     healthList.value = res.data || []
   } catch (error) {
     console.error('获取健康记录失败:', error)
@@ -161,7 +161,7 @@ const handleDelete = async (item) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    await deleteHealth(item.id)
+    await deleteHealthRecord(item.id)
     healthList.value = healthList.value.filter(h => h.id !== item.id)
     ElMessage.success('删除成功')
   } catch {
@@ -173,10 +173,10 @@ const handleSubmit = async () => {
   try {
     form.petId = selectedPetId.value
     if (isEdit.value) {
-      await updateHealth(form)
+      await updateHealthRecord(form)
       ElMessage.success('更新成功')
     } else {
-      await saveHealth(form)
+      await createHealthRecord(form)
       ElMessage.success('添加成功')
     }
     fetchHealthList()

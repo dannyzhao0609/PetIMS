@@ -56,6 +56,16 @@ const routes = [
         path: 'share',
         name: 'Share',
         component: () => import('@/views/share/Index.vue')
+      },
+      {
+        path: 'sensor',
+        name: 'Sensor',
+        component: () => import('@/views/sensor/Index.vue')
+      },
+      {
+        path: 'tracking',
+        name: 'Tracking',
+        component: () => import('@/views/tracking/Index.vue')
       }
     ]
   }
