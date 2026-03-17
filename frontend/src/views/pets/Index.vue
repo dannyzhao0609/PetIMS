@@ -214,11 +214,11 @@ const handleSubmit = async () => {
     &:hover {
       transform: translateY(-4px);
       box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
-    border-color: rgba(0, 212, 255, 0.3);
-    .pet-actions {
-      opacity: 1;
+      border-color: rgba(0, 212, 255, 0.3);
+      .pet-actions {
+        opacity: 1;
+      }
     }
-  }
 
   .pet-avatar {
     margin-bottom: 16px;

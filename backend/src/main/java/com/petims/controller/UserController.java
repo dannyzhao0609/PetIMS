@@ -5,6 +5,7 @@ import com.petims.entity.User;
 import com.petims.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -16,25 +17,27 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Operation(summary = "用户登录")
     @PostMapping("/login")
-    @org.springframework.web.bind.annotation.CrossOrigin(origins = "*")
     public Result<Map<String, Object>> login(@RequestBody User loginUser) {
         User user = userService.getByUsername(loginUser.getUsername());
         if (user == null) {
             return Result.error("用户不存在");
         }
+        
         String inputPassword = loginUser.getPassword();
         String storedPassword = user.getPassword();
         
         boolean passwordMatch = false;
         if (storedPassword != null && storedPassword.startsWith("$2a$")) {
-            passwordMatch = inputPassword.equals("123456") || inputPassword.equals("admin");
+            passwordMatch = passwordEncoder.matches(inputPassword, storedPassword);
         } else {
             passwordMatch = storedPassword != null && storedPassword.equals(inputPassword);
         }

@@ -4,9 +4,7 @@
     <div class="login-card glass-card">
       <div class="login-header">
         <div class="logo">
-          <el-icon :size="48" color="#00d4ff">
-            <Promotion />
-          </el-icon>
+          <img src="@/assets/images/设计宠物管理网站 logo.png" alt="PetIMS Logo" style="width: 120px; height: auto;" />
         </div>
         <h1 class="title neon-text">PetIMS</h1>
         <p class="subtitle">智能宠物管理系统</p>
@@ -59,7 +57,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Promotion } from '@element-plus/icons-vue'
+
 import { login } from '@/api/user'
 
 const router = useRouter()

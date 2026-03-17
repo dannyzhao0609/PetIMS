@@ -4,9 +4,7 @@
       <el-aside :width="isCollapse ? '64px' : '240px'" class="sidebar">
         <div class="logo-section">
           <div class="logo">
-            <el-icon :size="32" color="#00d4ff">
-              <Promotion />
-            </el-icon>
+            <img src="@/assets/images/设计宠物管理网站 logo.png" alt="PetIMS Logo" style="width: 48px; height: auto;" />
             <span v-show="!isCollapse" class="logo-text">PetIMS</span>
           </div>
         </div>
@@ -38,7 +36,7 @@
             <template #title>饮食管理</template>
           </el-menu-item>
           <el-menu-item index="/hygiene">
-            <el-icon><Water /></el-icon>
+            <el-icon><CircleCheck /></el-icon>
             <template #title>卫生管理</template>
           </el-menu-item>
           <el-menu-item index="/monitoring">
@@ -115,12 +113,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import {
-  Promotion,
   DataAnalysis,
   Box,
   FirstAidKit,
   Food,
-  Water,
+  CircleCheck,
   Monitor,
   TrendCharts,
   ChatDotRound,
