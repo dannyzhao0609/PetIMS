@@ -27,7 +27,7 @@
             <p class="error-detail">请检查网络连接或稍后重试</p>
           </div>
           <div v-else-if="mapLoaded" class="map-wrapper">
-            <div id="amap-container" class="amap-container"></div>
+            <div id="container" class="amap-container"></div>
           </div>
           <div v-else class="map-placeholder">
             <el-icon :size="48" class="loading-icon"><Loading /></el-icon>
@@ -214,7 +214,7 @@ const createMap = () => {
     console.log('创建地图实例...')
     const AMap = window.AMap
     
-    map = new AMap.Map('amap-container', {
+    map = new AMap.Map('container', {
       resizeEnable: true,
       zoom: 4,
       center: [105.0, 35.0]
