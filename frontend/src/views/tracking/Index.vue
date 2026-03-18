@@ -191,7 +191,7 @@ const initMap = () => {
   console.log('开始加载AMap脚本...')
   const script = document.createElement('script')
   script.type = 'text/javascript'
-  script.src = 'https://webapi.amap.com/maps?v=1.4.15&key=c1778fe007bcf29174b1d9a68e8204c9&callback=initAMapCallback'
+  script.src = 'https://webapi.amap.com/maps?v=2.0&key=c1778fe007bcf29174b1d9a68e8204c9&callback=initAMapCallback'
   
   window.initAMapCallback = () => {
     console.log('AMap脚本加载完成回调')
@@ -218,20 +218,23 @@ const createMap = () => {
       center: [105.0, 35.0]
     })
     
-    map.addControl(new AMap.ToolBar())
-    map.addControl(new AMap.Scale())
-    
-    map.on('complete', () => {
-      console.log('地图加载完成')
-      mapLoaded.value = true
-      mapLoadError.value = false
+    AMap.plugin(['AMap.ToolBar', 'AMap.Scale'], () => {
+      console.log('插件加载完成')
+      map.addControl(new AMap.ToolBar())
+      map.addControl(new AMap.Scale())
       
-      nextTick(() => {
-        if (latestLocation.value) {
-          updateMap()
-        } else {
-          showChinaMap()
-        }
+      map.on('complete', () => {
+        console.log('地图加载完成')
+        mapLoaded.value = true
+        mapLoadError.value = false
+        
+        nextTick(() => {
+          if (latestLocation.value) {
+            updateMap()
+          } else {
+            showChinaMap()
+          }
+        })
       })
     })
     
