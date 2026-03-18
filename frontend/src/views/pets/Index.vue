@@ -50,12 +50,13 @@
           <el-upload
             class="avatar-uploader"
             :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload"
+            :before-upload="handleAvatarUpload"
             action="#"
+            :disabled="uploading"
           >
             <el-avatar :size="100" :src="form.avatar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6)">
-              <el-icon class="avatar-uploader-icon"><Plus /></el-icon>
+              <el-icon v-if="!uploading" class="avatar-uploader-icon"><Plus /></el-icon>
+              <el-icon v-else class="avatar-uploader-icon is-loading"><Loading /></el-icon>
             </el-avatar>
           </el-upload>
         </el-form-item>
@@ -104,14 +105,15 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Edit, Delete } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete, Loading } from '@element-plus/icons-vue'
 import { usePetStore } from '@/store/pet'
-import { createPet, updatePet, deletePet } from '@/api/pet'
+import { createPet, updatePet, deletePet, uploadAvatar } from '@/api/pet'
 
 const petStore = usePetStore()
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref(null)
+const uploading = ref(false)
 
 const form = reactive({
   id: null,
@@ -177,11 +179,7 @@ const handleDelete = async (pet) => {
   }
 }
 
-const handleAvatarSuccess = (response, file) => {
-  form.avatar = URL.createObjectURL(file.raw)
-}
-
-const beforeAvatarUpload = (file) => {
+const handleAvatarUpload = async (file) => {
   const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png'
   const isLt2M = file.size / 1024 / 1024 < 2
 
@@ -193,8 +191,20 @@ const beforeAvatarUpload = (file) => {
     ElMessage.error('头像图片大小不能超过 2MB!')
     return false
   }
-  
-  form.avatar = URL.createObjectURL(file)
+
+  uploading.value = true
+  try {
+    const res = await uploadAvatar(file)
+    if (res.data && res.data.url) {
+      form.avatar = res.data.url
+      ElMessage.success('头像上传成功')
+    }
+  } catch (error) {
+    console.error('上传失败:', error)
+    ElMessage.error('头像上传失败')
+  } finally {
+    uploading.value = false
+  }
   return false
 }
 

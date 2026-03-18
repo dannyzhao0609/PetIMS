@@ -86,13 +86,17 @@ let marker = null
 let polyline = null
 
 const petsWithSensors = computed(() => {
+  console.log('=== 计算petsWithSensors ===')
   console.log('pets:', pets.value)
   console.log('bindings:', bindings.value)
-  const boundPetIds = bindings.value.map(b => b.petId)
-  console.log('boundPetIds:', boundPetIds)
-  const result = pets.value.filter(p => boundPetIds.includes(p.id))
-  console.log('petsWithSensors result:', result)
-  return result
+  
+  if (!pets.value || pets.value.length === 0) {
+    console.log('没有宠物数据')
+    return []
+  }
+  
+  console.log('返回所有宠物，不进行过滤')
+  return pets.value
 })
 
 const selectedPet = computed(() => {
@@ -182,6 +186,10 @@ const showChinaMap = () => {
 const initMap = () => {
   console.log('开始初始化地图...')
   
+  window._AMapSecurityConfig = {
+    securityJsCode: '42a134d9233036bb99a00d5e6aa1bd38'
+  }
+  
   if (window.AMap) {
     console.log('AMap已加载，直接初始化')
     createMap()
@@ -191,7 +199,7 @@ const initMap = () => {
   console.log('开始加载AMap脚本...')
   const script = document.createElement('script')
   script.type = 'text/javascript'
-  script.src = 'https://webapi.amap.com/maps?v=2.0&key=c1778fe007bcf29174b1d9a68e8204c9&callback=initAMapCallback'
+  script.src = 'https://webapi.amap.com/maps?v=2.0&key=8b6498c94c59588ec45280887d868b29&callback=initAMapCallback'
   
   window.initAMapCallback = () => {
     console.log('AMap脚本加载完成回调')
