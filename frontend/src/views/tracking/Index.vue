@@ -21,15 +21,13 @@
       
       <div class="tracking-content">
         <div class="map-container glass-card">
-          <div v-if="mapLoadError" class="map-error">
+          <div id="container" class="amap-container" :style="{ opacity: mapLoaded && !mapLoadError ? 1 : 0 }"></div>
+          <div v-if="mapLoadError" class="map-overlay map-error">
             <el-icon :size="48"><Warning /></el-icon>
             <p>地图服务暂时不可用</p>
             <p class="error-detail">请检查网络连接或稍后重试</p>
           </div>
-          <div v-else-if="mapLoaded" class="map-wrapper">
-            <div id="container" class="amap-container"></div>
-          </div>
-          <div v-else class="map-placeholder">
+          <div v-else-if="!mapLoaded" class="map-overlay map-placeholder">
             <el-icon :size="48" class="loading-icon"><Loading /></el-icon>
             <p>地图加载中...</p>
           </div>
@@ -353,21 +351,23 @@ onUnmounted(() => {
       
       .map-container {
         padding: 20px;
-        
-        .map-wrapper {
-          width: 100%;
-        }
+        position: relative;
         
         .amap-container {
           width: 100%;
           height: 400px;
           border-radius: 8px;
           background: #1e293b;
+          transition: opacity 0.3s ease;
         }
         
-        .map-placeholder,
-        .map-error {
-          width: 100%;
+        .map-overlay {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          right: 20px;
+          bottom: 20px;
+          width: calc(100% - 40px);
           height: 400px;
           display: flex;
           flex-direction: column;
@@ -377,6 +377,7 @@ onUnmounted(() => {
           gap: 16px;
           background: #1e293b;
           border-radius: 8px;
+          z-index: 10;
           
           .loading-icon {
             animation: spin 1s linear infinite;
