@@ -86,11 +86,15 @@ const mapLoadError = ref(false)
 let map = null
 let marker = null
 let polyline = null
-let mapInitAttempted = ref(false)
 
 const petsWithSensors = computed(() => {
+  console.log('pets:', pets.value)
+  console.log('bindings:', bindings.value)
   const boundPetIds = bindings.value.map(b => b.petId)
-  return pets.value.filter(p => boundPetIds.includes(p.id))
+  console.log('boundPetIds:', boundPetIds)
+  const result = pets.value.filter(p => boundPetIds.includes(p.id))
+  console.log('petsWithSensors result:', result)
+  return result
 })
 
 const selectedPet = computed(() => {
@@ -105,9 +109,13 @@ const formatTime = (timeStr) => {
 
 const loadPets = async () => {
   try {
+    console.log('开始加载宠物列表...')
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
-    const res = await getPetsByUserId(userInfo.id)
+    console.log('userInfo:', userInfo)
+    const res = await getPetsByUserId(userInfo.id || 1)
+    console.log('宠物列表响应:', res)
     pets.value = res.data || []
+    console.log('pets.value:', pets.value)
   } catch (error) {
     console.error('加载宠物列表失败:', error)
   }
@@ -115,8 +123,11 @@ const loadPets = async () => {
 
 const loadBindings = async () => {
   try {
+    console.log('开始加载绑定列表...')
     const res = await getBindings()
+    console.log('绑定列表响应:', res)
     bindings.value = res.data || []
+    console.log('bindings.value:', bindings.value)
   } catch (error) {
     console.error('加载绑定列表失败:', error)
   }
@@ -154,6 +165,7 @@ const loadLocationTracks = async () => {
 const showChinaMap = () => {
   if (!map || !mapLoaded.value) return
   try {
+    console.log('显示中国地图...')
     if (marker) {
       map.remove(marker)
       marker = null
@@ -163,17 +175,44 @@ const showChinaMap = () => {
       polyline = null
     }
     map.setZoomAndCenter(4, [105.0, 35.0])
+    console.log('中国地图显示完成')
   } catch (error) {
     console.error('显示中国地图失败:', error)
   }
 }
 
-const initMap = async () => {
-  if (mapInitAttempted.value) return
-  mapInitAttempted.value = true
+const initMap = () => {
+  console.log('开始初始化地图...')
   
+  if (window.AMap) {
+    console.log('AMap已加载，直接初始化')
+    createMap()
+    return
+  }
+  
+  console.log('开始加载AMap脚本...')
+  const script = document.createElement('script')
+  script.type = 'text/javascript'
+  script.src = 'https://webapi.amap.com/maps?v=2.0&key=c1778fe007bcf29174b1d9a68e8204c9&callback=initAMapCallback'
+  
+  window.initAMapCallback = () => {
+    console.log('AMap脚本加载完成回调')
+    createMap()
+  }
+  
+  script.onerror = () => {
+    console.error('AMap脚本加载失败')
+    mapLoadError.value = true
+    mapLoaded.value = false
+  }
+  
+  document.head.appendChild(script)
+}
+
+const createMap = () => {
   try {
-    const AMap = await loadAMap()
+    console.log('创建地图实例...')
+    const AMap = window.AMap
     
     map = new AMap.Map('amap-container', {
       resizeEnable: true,
@@ -184,54 +223,32 @@ const initMap = async () => {
     map.addControl(new AMap.ToolBar())
     map.addControl(new AMap.Scale())
     
-    mapLoaded.value = true
-    mapLoadError.value = false
-    
-    nextTick(() => {
-      if (latestLocation.value) {
-        updateMap()
-      } else {
-        showChinaMap()
-      }
+    map.on('complete', () => {
+      console.log('地图加载完成')
+      mapLoaded.value = true
+      mapLoadError.value = false
+      
+      nextTick(() => {
+        if (latestLocation.value) {
+          updateMap()
+        } else {
+          showChinaMap()
+        }
+      })
     })
+    
   } catch (error) {
-    console.error('地图初始化失败:', error)
+    console.error('创建地图失败:', error)
     mapLoadError.value = true
     mapLoaded.value = false
   }
-}
-
-const loadAMap = () => {
-  return new Promise((resolve, reject) => {
-    if (window.AMap) {
-      resolve(window.AMap)
-      return
-    }
-    
-    const script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.src = 'https://webapi.amap.com/maps?v=2.0&key=c1778fe007bcf29174b1d9a68e8204c9'
-    
-    script.onload = () => {
-      if (window.AMap) {
-        resolve(window.AMap)
-      } else {
-        reject(new Error('AMap not found'))
-      }
-    }
-    
-    script.onerror = () => {
-      reject(new Error('Failed to load AMap script'))
-    }
-    
-    document.head.appendChild(script)
-  })
 }
 
 const updateMap = () => {
   if (!map || !mapLoaded.value) return
   
   try {
+    console.log('更新地图...')
     if (marker) {
       map.remove(marker)
     }
@@ -261,12 +278,14 @@ const updateMap = () => {
       })
       map.add(polyline)
     }
+    console.log('地图更新完成')
   } catch (error) {
     console.error('更新地图失败:', error)
   }
 }
 
 const handlePetChange = () => {
+  console.log('宠物选择变化:', selectedPetId.value)
   loadLocationTracks()
 }
 
@@ -276,13 +295,18 @@ const refreshLocation = () => {
 }
 
 watch(selectedPetId, () => {
+  console.log('watch监测到宠物ID变化:', selectedPetId.value)
   loadLocationTracks()
 })
 
 onMounted(async () => {
-  loadPets()
-  loadBindings()
+  console.log('组件挂载，开始初始化...')
+  await Promise.all([
+    loadPets(),
+    loadBindings()
+  ])
   
+  console.log('宠物和绑定数据加载完成，开始初始化地图')
   nextTick(() => {
     initMap()
   })
@@ -292,6 +316,9 @@ onUnmounted(() => {
   if (map) {
     map.destroy()
     map = null
+  }
+  if (window.initAMapCallback) {
+    delete window.initAMapCallback
   }
 })
 </script>
@@ -335,6 +362,7 @@ onUnmounted(() => {
           width: 100%;
           height: 400px;
           border-radius: 8px;
+          background: #1e293b;
         }
         
         .map-placeholder,
@@ -347,6 +375,8 @@ onUnmounted(() => {
           justify-content: center;
           color: #94a3b8;
           gap: 16px;
+          background: #1e293b;
+          border-radius: 8px;
           
           .loading-icon {
             animation: spin 1s linear infinite;

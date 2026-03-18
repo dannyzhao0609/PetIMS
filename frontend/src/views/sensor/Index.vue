@@ -374,4 +374,38 @@ onMounted(() => {
     }
   }
 }
+
+:deep(.el-tabs) {
+  .el-tabs__header {
+    padding: 0 24px;
+    margin: 0;
+    
+    .el-tabs__nav-wrap {
+      &::after {
+        display: none;
+      }
+    }
+    
+    .el-tabs__item {
+      color: #94a3b8;
+      font-size: 15px;
+      
+      &:hover {
+        color: #00d4ff;
+      }
+      
+      &.is-active {
+        color: #00d4ff;
+      }
+    }
+    
+    .el-tabs__active-bar {
+      background: linear-gradient(90deg, #00d4ff, #8b5cf6);
+    }
+  }
+  
+  .el-tabs__content {
+    padding: 24px;
+  }
+}
 </style>
