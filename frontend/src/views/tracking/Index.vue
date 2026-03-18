@@ -19,11 +19,7 @@
         </el-button>
       </div>
       
-      <div v-if="!selectedPetId" class="empty-state">
-        <el-empty description="请选择要跟踪的宠物" />
-      </div>
-      
-      <div v-else class="tracking-content">
+      <div class="tracking-content">
         <div class="map-container glass-card">
           <div v-if="mapLoadError" class="map-error">
             <el-icon :size="48"><Warning /></el-icon>
@@ -73,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Refresh, Warning, Loading } from '@element-plus/icons-vue'
 import { getPetsByUserId } from '@/api/pet'
@@ -127,7 +123,14 @@ const loadBindings = async () => {
 }
 
 const loadLocationTracks = async () => {
-  if (!selectedPetId.value) return
+  if (!selectedPetId.value) {
+    locationTracks.value = []
+    latestLocation.value = null
+    if (mapLoaded.value) {
+      showChinaMap()
+    }
+    return
+  }
   
   try {
     const [tracksRes, latestRes] = await Promise.all([
@@ -148,6 +151,23 @@ const loadLocationTracks = async () => {
   }
 }
 
+const showChinaMap = () => {
+  if (!map || !mapLoaded.value) return
+  try {
+    if (marker) {
+      map.remove(marker)
+      marker = null
+    }
+    if (polyline) {
+      map.remove(polyline)
+      polyline = null
+    }
+    map.setZoomAndCenter(4, [105.0, 35.0])
+  } catch (error) {
+    console.error('显示中国地图失败:', error)
+  }
+}
+
 const initMap = async () => {
   if (mapInitAttempted.value) return
   mapInitAttempted.value = true
@@ -157,8 +177,8 @@ const initMap = async () => {
     
     map = new AMap.Map('amap-container', {
       resizeEnable: true,
-      zoom: 13,
-      center: [116.397428, 39.90923]
+      zoom: 4,
+      center: [105.0, 35.0]
     })
     
     map.addControl(new AMap.ToolBar())
@@ -170,6 +190,8 @@ const initMap = async () => {
     nextTick(() => {
       if (latestLocation.value) {
         updateMap()
+      } else {
+        showChinaMap()
       }
     })
   } catch (error) {
@@ -225,7 +247,7 @@ const updateMap = () => {
         title: selectedPet.value?.name || '宠物'
       })
       map.add(marker)
-      map.setCenter([latestLocation.value.longitude, latestLocation.value.latitude])
+      map.setZoomAndCenter(13, [latestLocation.value.longitude, latestLocation.value.latitude])
     }
     
     if (locationTracks.value.length > 1) {
@@ -252,6 +274,10 @@ const refreshLocation = () => {
   loadLocationTracks()
   ElMessage.success('位置已刷新')
 }
+
+watch(selectedPetId, () => {
+  loadLocationTracks()
+})
 
 onMounted(async () => {
   loadPets()
@@ -291,10 +317,6 @@ onUnmounted(() => {
       display: flex;
       gap: 16px;
       align-items: center;
-    }
-    
-    .empty-state {
-      padding: 60px 0;
     }
     
     .tracking-content {

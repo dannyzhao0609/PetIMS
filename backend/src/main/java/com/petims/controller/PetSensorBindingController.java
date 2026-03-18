@@ -51,6 +51,7 @@ public class PetSensorBindingController {
     public Result<Void> save(@RequestBody PetSensorBinding binding) {
         binding.setBindTime(LocalDateTime.now());
         binding.setStatus("bound");
+        binding.setTenantId(1L);
         petSensorBindingService.save(binding);
         return Result.success();
     }

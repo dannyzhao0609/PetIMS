@@ -57,6 +57,7 @@ public class PostController {
         if (post.getComments() == null) {
             post.setComments(0);
         }
+        post.setTenantId(1L);
         postService.save(post);
         return Result.success();
     }
