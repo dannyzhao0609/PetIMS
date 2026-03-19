@@ -2,8 +2,14 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 
+const getBaseURL = () => {
+  const protocol = window.location.protocol
+  const hostname = window.location.hostname
+  return `${protocol}//${hostname}:8080/api`
+}
+
 const request = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: getBaseURL(),
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json'

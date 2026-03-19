@@ -1,12 +1,25 @@
 package com.petims.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @TableName("location_tracks")
-public class LocationTrack extends BaseEntity {
+public class LocationTrack implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    @TableField("tenant_id")
+    private Long tenantId;
 
     private Long petId;
 
@@ -19,6 +32,25 @@ public class LocationTrack extends BaseEntity {
     private String address;
 
     private LocalDateTime trackTime;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
 
     public Long getPetId() {
         return petId;
@@ -66,5 +98,13 @@ public class LocationTrack extends BaseEntity {
 
     public void setTrackTime(LocalDateTime trackTime) {
         this.trackTime = trackTime;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
     }
 }

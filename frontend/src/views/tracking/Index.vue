@@ -257,16 +257,25 @@ const updateMap = () => {
   if (!map || !mapLoaded.value) return
   
   try {
-    console.log('更新地图...')
+    console.log('=== 更新地图 ===')
+    console.log('locationTracks:', locationTracks.value)
+    console.log('locationTracks.length:', locationTracks.value.length)
+    console.log('latestLocation:', latestLocation.value)
+    
     if (marker) {
+      console.log('移除旧标记')
       map.remove(marker)
+      marker = null
     }
     
     if (polyline) {
+      console.log('移除旧轨迹')
       map.remove(polyline)
+      polyline = null
     }
     
     if (latestLocation.value) {
+      console.log('添加位置标记')
       const AMap = window.AMap
       marker = new AMap.Marker({
         position: [latestLocation.value.longitude, latestLocation.value.latitude],
@@ -276,16 +285,38 @@ const updateMap = () => {
       map.setZoomAndCenter(13, [latestLocation.value.longitude, latestLocation.value.latitude])
     }
     
-    if (locationTracks.value.length > 1) {
+    if (locationTracks.value.length > 0) {
+      console.log('准备绘制轨迹，点数:', locationTracks.value.length)
       const AMap = window.AMap
-      const path = locationTracks.value.map(track => [track.longitude, track.latitude])
-      polyline = new AMap.Polyline({
-        path: path,
-        borderWeight: 2,
-        strokeColor: '#00d4ff',
-        lineJoin: 'round'
+      const path = locationTracks.value.map(track => {
+        console.log('轨迹点:', track.longitude, track.latitude)
+        return [track.longitude, track.latitude]
       })
-      map.add(polyline)
+      
+      console.log('轨迹路径:', path)
+      
+      if (path.length >= 2) {
+        console.log('绘制轨迹线')
+        polyline = new AMap.Polyline({
+          path: path,
+          borderWeight: 2,
+          strokeColor: '#00d4ff',
+          lineJoin: 'round',
+          strokeWeight: 3
+        })
+        map.add(polyline)
+        console.log('轨迹线添加成功')
+        
+        const bounds = new AMap.Bounds()
+        path.forEach(point => {
+          bounds.extend(point)
+        })
+        map.setBounds(bounds)
+      } else if (path.length === 1) {
+        console.log('只有一个点，不绘制轨迹线')
+      }
+    } else {
+      console.log('没有轨迹数据')
     }
     console.log('地图更新完成')
   } catch (error) {
@@ -366,7 +397,7 @@ onUnmounted(() => {
         
         .amap-container {
           width: 100%;
-          height: 400px;
+          height: 800px;
           border-radius: 8px;
           background: #1e293b;
           transition: opacity 0.3s ease;
@@ -379,7 +410,7 @@ onUnmounted(() => {
           right: 20px;
           bottom: 20px;
           width: calc(100% - 40px);
-          height: 400px;
+          height: 800px;
           display: flex;
           flex-direction: column;
           align-items: center;
